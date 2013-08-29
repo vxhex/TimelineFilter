@@ -9,6 +9,7 @@ Note: development is in alpha so there is currently no packed version of this ex
 
 Todo
 -------
+- Allow filtering based on tweet author.
 - Allow individual filters to be enabled or disabled.
-- Allow user to set regexp flags. Current regexps are built with gi flags.
+- Allow user to set regexp flags. Current regexps are built with i flag.
 - Push filters to content script as soon as they're saved.

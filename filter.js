@@ -4,6 +4,7 @@
 */
 function TimelineFilter(filters) {
 	var _regexes = new Array();
+	var _promos = false;
 	var _this = this;
 	
 	/**
@@ -15,16 +16,84 @@ function TimelineFilter(filters) {
 			var tweetText = tweet.find('.js-tweet-text').html();
 			//if the regex matches the tweet text
 			if(_regexes[i].test(tweetText)) {
-				//put the original tweet text in a data attribute
-				tweet.data('original-text', tweetText)
-				tweet.find('.js-tweet-text').html('<span class="expand-action-wrapper">Tweet filtered. Click to view the original.</span>');
+				_hideTweet(tweet);
+			}
+		}
+	}
+	
+	/**
+	* Hide a tweet if it matches a filtered username
+	*/
+	var _filterUser = function(user) {
+	
+	}
+	
+	/**
+	* Hide a tweet if it's a promotion
+	*/
+	var _filterPromoted = function(tweet) {
+		if(tweet.find('.badge-promoted').html() !== undefined) {
+			_hideTweet(tweet);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	* Hide a tweet and attach a handler to show the original text
+	*/
+	var _hideTweet = function(tweet) {
+		var text = tweet.find('.js-tweet-text').html();
+	
+		//put the original tweet text in a data attribute
+		tweet.data('original-text', text)
+		tweet.find('.js-tweet-text').html('<span class="expand-action-wrapper">Tweet filtered. Click to view the original.</span>');
 				
-				//add a click handler to the hidden tweet
-				tweet.click(function(event){
-					var originalTweet = $(this).data('original-text');
-					$(this).find('.js-tweet-text').html(originalTweet);
-					$(this).unbind(event);
-				});
+		//add a click handler to the hidden tweet
+		tweet.click(function(event){
+			var originalTweet = $(this).data('original-text');
+			$(this).find('.js-tweet-text').html(originalTweet);
+			$(this).unbind(event);
+		});
+	}
+	
+	/**
+	* Step through each tweet and run the filters against it
+	*/
+	var _runFilters = function(tweet) {
+		var hidden = false;
+	
+		//check if promoted
+		if(_promos) { hidden = _filterPromoted(tweet); }
+		
+		//check users
+		
+		//check content
+		if(!hidden) {
+			_filterText(tweet);
+		}
+	}
+	
+	/**
+	* Configure filters and build regexes
+	*/
+	var _buildFilters = function(filters) {
+		//un-stringify our filters into an array and build them
+		var unpackedFilters = JSON.parse(filters);
+		for(var i = 0; i < unpackedFilters.length; i++) {
+			var filter = JSON.parse(unpackedFilters[i]);
+			//build filters by type
+			switch(filter.type) {
+				case 'content':
+					_regexes.push(new RegExp(filter.value, 'i'));
+					break;
+				case 'user':
+					break;
+				case 'promo':
+					_promos = (filter.value === 'yes');
+					break;
+				default:
+					console.log('Timeline Filter type not found: ' + filter.type);
 			}
 		}
 	}
@@ -33,23 +102,18 @@ function TimelineFilter(filters) {
 	* Bind to any changes to the timeline and run each tweet through our filter method
 	*/
 	var _init = function(filters) {
-		//Un-stringify our filters into an array and build them
-		var unpackedFilters = JSON.parse(filters);
-		for(var i = 0; i < unpackedFilters.length; i++) {
-			_regexes.push(new RegExp(unpackedFilters[i], 'gi'));
-		}
-		console.log(_regexes);
+		_buildFilters(filters);
 	
-		//When tweets are added to the timeline, check 'em
+		//when tweets are added to the timeline, check 'em
 		$('.stream-container').bind('DOMNodeInserted', function(event) {
 			if($(event.target).hasClass('js-stream-item')){
-				_filterText($(event.target).find('.tweet'));
+				_runFilters($(event.target).find('.tweet'));
 			}
 		});
 		
-		//Check any tweets currently showing on the timeline
+		//check any tweets currently showing on the timeline
 		$('.tweet').each(function(){
-			_filterText($(this));
+			_runFilters($(this));
 		});
 	}
 	

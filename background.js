@@ -6,13 +6,13 @@ chrome.extension.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		if (request.action === 'get_filters') {
 			var filters = new Array();
-			//Gather up the filters from local storage into an array
+			//gather up the filters from local storage into an array
 			for(var i = 0; i < localStorage.length; i++) {
 				var key = localStorage.key(i);
 				var filter = localStorage.getItem(key);
 				filters.push(filter);
 			}
-			//Send our filters back as a JSON string
+			//send our filters back as a JSON string
 			sendResponse({msg: JSON.stringify(filters)});
 		}
 	}

@@ -3,7 +3,7 @@
 
 	"name": "Twitter Timeline Filter",
 	"description": "This extension allows you to hide tweets in your Twitter timeline based on user-supplied regular expressions.",
-	"version": "0.1",
+	"version": "0.2",
   
 	"permissions": [
 		"https://twitter.com/"
