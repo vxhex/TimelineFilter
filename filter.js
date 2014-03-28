@@ -41,23 +41,25 @@ function TimelineFilter(filters) {
     * Hide a tweet and attach a handler to show the original text
     */
     var _hideTweet = function(tweet) {
-        var text = tweet.find('.js-tweet-text').html();
-        var advt = tweet.find('.card2').html();
+        var text  = tweet.find('.js-tweet-text').html();
+        var media = tweet.find('.js-media-container').html();
+        // .cards-media-container, .media, or .media-thumbnail could also work
+        // '' is on the same div level as .js-media-container
 
         //put the original tweet text in a data attribute
         tweet.data('original-text', text);
-        tweet.data('original-advert', advt);
+        tweet.data('original-media', media);
 
         //edit tweet text
         tweet.find('.js-tweet-text').html('<span class="expand-action-wrapper">Tweet filtered. Click to view the original.</span>');
-        tweet.find('.card2').html('');
+        tweet.find('.js-media-container').html('');
 
         //add a click handler to the hidden tweet
         tweet.click(function(event) {
             var originalTweet = $(this).data('original-text');
-            var originalAdvt = $(this).data('original-advert');
+            var originalMedia = $(this).data('original-media');
             $(this).find('.js-tweet-text').html(originalTweet);
-            $(this).find('.card2').html(originalAdvt);
+            $(this).find('.js-media-container').html(originalMedia);
             $(this).unbind(event);
         });
     }
